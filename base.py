@@ -26,7 +26,7 @@ def main():
 
     # Splitting the commands into an array
     commands = dirty_commands.split(";")
-
+    print(enable, username, password, hostname, dirty_commands)
     # Choosing the appropriate function to use depending on the selected device
     # if hosttype == "cisco":
     #         cisco(username, password, enable, hostname, commands)
@@ -48,8 +48,7 @@ def cisco(user, passw, enable, hostname, commands=[]):
     pass
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname, username=user, password=passw, look_for_keys=False,
-                allow_agent=False)
+    ssh.connect(hostname, username=user, password=passw, look_for_keys=False, allow_agent=False)
     ssh_conn = ssh.invoke_shell()
     output = ssh_conn.recv(2000)
 
