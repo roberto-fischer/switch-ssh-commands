@@ -39,7 +39,7 @@ def main():
     else:
         # If nothing was chosen
         print("No proper device selected...")
-        sys.quit()
+        sys.exit()
 
 
 def cisco(user, passw, enable, hostname, commands=[]):
@@ -53,6 +53,7 @@ def cisco(user, passw, enable, hostname, commands=[]):
 
     if "authentication" in output:
         ssh_conn.close()
+        ssh.close()
         return("Connection closed due to incorrect login credentials")
 
     if enable == "":
@@ -63,13 +64,16 @@ def cisco(user, passw, enable, hostname, commands=[]):
         output = ssh_conn.recv(2000)
         if output[-1] == ">":
             ssh_conn.close()
+            ssh.close()
             return("Connection closed due to incorrect enable credentials")
 
     for cmd in output:
         ssh_conn.send(cmd + "\n")
         output = ssh_conn.recv(20000)
+    ssh_conn.close()
+    ssh.close()
     print(output)
-    sys.quit()
+    sys.exit()
 
 
 def dell(user, passw, enable, hostname, commands=[]):
