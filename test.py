@@ -1,5 +1,6 @@
 import paramiko
 import sys
+import time
 
 
 def main():
@@ -7,9 +8,10 @@ def main():
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect('10.30.0.6', username='admin', password='SpassE32', look_for_keys=False, allow_agent=False)
     ssh_conn = ssh.invoke_shell()
+    time.sleep(1)
     output = ssh_conn.recv(2000)
     print(output)
-    
+
     if b"authentication" in output:
         ssh_conn.close()
         ssh.close()
@@ -17,17 +19,14 @@ def main():
 
     enable = 'SpassE32'
 
-    if output[-1] == ">":
-        ssh_conn.send("enable\n")
-        ssh_conn.send(enable + "\n")
-        output = ssh_conn.recv(2000)
-        print(output)
-        if output[-1] == ">":
-            ssh_conn.close()
-            ssh.close()
-            return("Connection closed due to incorrect enable credentials")
+    ssh_conn.send("enable\n")
+    ssh_conn.send("SpassE32\n")
+    time.sleep(1)
+    output = ssh_conn.recv(2000)
+    print(output)
 
     ssh_conn.send("show clock detail\n")
+    time.sleep(1)
     output = ssh_conn.recv(20000)
     ssh_conn.close()
     ssh.close()
