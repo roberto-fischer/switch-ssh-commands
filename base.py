@@ -20,7 +20,7 @@ def main():
                         help="Choose a device to run commands against")
     parser.add_argument("-u", "--user", action="store", dest="username", help="Username to login as")
     parser.add_argument("-p", "--pass", action="store", dest="password", help="The user's password")
-    parser.add_argument("-h", "--host", action="store", dest="hostname", help="The remote host")
+    parser.add_argument("-H", "--host", action="store", dest="hostname", help="The remote host")
     parser.add_argument("-c", "--command", action="store", dest="dirty_commands",
                         help="Commands to be run on the remote device. Separate multiple commands with ;")
 
