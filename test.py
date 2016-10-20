@@ -9,7 +9,7 @@ def main():
     ssh_conn = ssh.invoke_shell()
     output = ssh_conn.recv(2000)
 
-    if "authentication" in output:
+    if b"authentication" in output:
         ssh_conn.close()
         ssh.close()
         return("Connection closed due to incorrect login credentials")
