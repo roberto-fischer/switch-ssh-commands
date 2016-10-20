@@ -28,18 +28,20 @@ def main():
     commands = dirty_commands.split(";")
 
     # Choosing the appropriate function to use depending on the selected device
-    if hosttype == "cisco":
-            cisco(username, password, enable, hostname, commands)
-    elif hosttype == "dell":
-            dell(username, password, enable, hostname, commands)
-    elif hosttype == "hp":
-            hp(username, password, enable, hostname, commands)
-    elif hosttype == "a10":
-            a10(username, password, enable, hostname, commands)
-    else:
-        # If nothing was chosen
-        print("No proper device selected...")
-        sys.exit()
+    # if hosttype == "cisco":
+    #         cisco(username, password, enable, hostname, commands)
+    # elif hosttype == "dell":
+    #         dell(username, password, enable, hostname, commands)
+    # elif hosttype == "hp":
+    #         hp(username, password, enable, hostname, commands)
+    # elif hosttype == "a10":
+    #         a10(username, password, enable, hostname, commands)
+    # else:
+    #     # If nothing was chosen
+    #     print("No proper device selected...")
+    #     sys.exit()
+    result = cisco(username, password, enable, hostname, commands)
+    print(result)
 
 
 def cisco(user, passw, enable, hostname, commands=[]):
@@ -72,8 +74,7 @@ def cisco(user, passw, enable, hostname, commands=[]):
         output = ssh_conn.recv(20000)
     ssh_conn.close()
     ssh.close()
-    print(output)
-    sys.exit()
+    return(output)
 
 
 def dell(user, passw, enable, hostname, commands=[]):
