@@ -8,7 +8,8 @@ def main():
     ssh.connect('10.30.0.6', username='admin', password='SpassE32', look_for_keys=False, allow_agent=False)
     ssh_conn = ssh.invoke_shell()
     output = ssh_conn.recv(2000)
-
+    print(output)
+    
     if b"authentication" in output:
         ssh_conn.close()
         ssh.close()
@@ -20,6 +21,7 @@ def main():
         ssh_conn.send("enable\n")
         ssh_conn.send(enable + "\n")
         output = ssh_conn.recv(2000)
+        print(output)
         if output[-1] == ">":
             ssh_conn.close()
             ssh.close()
