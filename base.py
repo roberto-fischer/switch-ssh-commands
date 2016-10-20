@@ -61,7 +61,8 @@ def cisco(user, passw, enable, hostname, commands=[]):
         enable = passw
 
     if output[-1] == ">":
-        ssh_conn.send(enable)
+        ssh_conn.send("enable\n")
+        ssh_conn.send(enable + "\n")
         output = ssh_conn.recv(2000)
         if output[-1] == ">":
             ssh_conn.close()
