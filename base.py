@@ -3,7 +3,7 @@ import sys
 import argparse
 
 
-def main(argv):
+def main():
     # Defining my input variables
     username = ''
     password = ''
@@ -16,14 +16,13 @@ def main(argv):
     parser = argparse.ArgumentParser(description='Send commands to network devices')
     parser.add_argument("-e", "--enable", action="store", dest="enable",
                         help="The user's enable password if different from regular password")
-    required = parser.add_argument_group('Required Arguments')
-    required.add_argument("-d", "--device", action="store", dest="hosttype", choices=["cisco", "dell", "hp", "a10"],
-                          help="Choose a device to run commands against")
-    required.add_argument("-u", "--user", action="store", dest="username", help="Username to login as")
-    required.add_argument("-p", "--pass", action="store", dest="password", help="The user's password")
-    required.add_argument("-h", "--host", action="store", dest="hostname", help="The remote host")
-    required.add_argument("-c", "--command", action="store", dest="dirty_commands",
-                          help="Commands to be run on the remote device. Separate multiple commands with ;")
+    parser.add_argument("-d", "--device", action="store", dest="hosttype", choices=["cisco", "dell", "hp", "a10"],
+                        help="Choose a device to run commands against")
+    parser.add_argument("-u", "--user", action="store", dest="username", help="Username to login as")
+    parser.add_argument("-p", "--pass", action="store", dest="password", help="The user's password")
+    parser.add_argument("-h", "--host", action="store", dest="hostname", help="The remote host")
+    parser.add_argument("-c", "--command", action="store", dest="dirty_commands",
+                        help="Commands to be run on the remote device. Separate multiple commands with ;")
 
     # Splitting the commands into an array
     commands = dirty_commands.split(";")
@@ -39,7 +38,7 @@ def main(argv):
             a10(username, password, enable, hostname, commands)
     else:
         # If nothing was chosen
-        print "No proper device selected..."
+        print("No proper device selected...")
         sys.quit()
 
 
@@ -69,7 +68,7 @@ def cisco(user, passw, enable, hostname, commands=[]):
     for cmd in output:
         ssh_conn.send(cmd + "\n")
         output = ssh_conn.recv(20000)
-    print output
+    print(output)
     sys.quit()
 
 
