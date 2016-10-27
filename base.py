@@ -1,17 +1,12 @@
+#!/usr/bin/python
 import paramiko
 import sys
 import argparse
+import time
 
 
 def main():
     # Defining my input variables
-    username = ''
-    password = ''
-    enable = ''
-    hostname = ''
-    hosttype = ''
-    dirty_commands = ''
-
     # Building the argument parser
     parser = argparse.ArgumentParser(description='Send commands to network devices')
     parser.add_argument("-e", "--enable", action="store", dest="enable",
@@ -24,9 +19,13 @@ def main():
     parser.add_argument("-c", "--command", action="store", dest="dirty_commands",
                         help="Commands to be run on the remote device. Separate multiple commands with ;")
 
+    items = parser.parse_args()
+
+    log = '/tmp/sw-cmds/' + items.hostname
+    print(log)
     # Splitting the commands into an array
-    commands = dirty_commands.split(";")
-    print(enable, username, password, hostname, dirty_commands)
+    commands = items.dirty_commands.split(";")
+    print(items.enable, items.username, items.password, items.hostname, items.dirty_commands)
     # Choosing the appropriate function to use depending on the selected device
     # if hosttype == "cisco":
     #         cisco(username, password, enable, hostname, commands)
@@ -40,23 +39,30 @@ def main():
     #     # If nothing was chosen
     #     print("No proper device selected...")
     #     sys.exit()
-    result = cisco(username, password, enable, hostname, commands)
-    print(result)
+
+    result = cisco(items.username, items.password, items.enable, items.hostname, commands)
+    target = open(log, 'w')
+#    import pdb;
+#    pdb.set_trace()
+    print target.mode
+    target.write(result)
+    target.close()
+    sys.exit()
 
 
-def cisco(user, passw, enable, hostname, commands=[]):
-    pass
+def cisco(user, passw, enable, hostname, commands):
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname, username=user, password=passw, look_for_keys=False, allow_agent=False)
-    ssh_conn = ssh.invoke_shell()
+
+    try:
+        ssh.connect(hostname, username=user, password=passw, look_for_keys=False, allow_agent=False)
+        ssh_conn = ssh.invoke_shell()
+    except paramiko.ssh_exception.AuthenticationException:
+        print("Connection closed due to incorrect credentials")
+        return('0')
+
+    time.sleep(1)
     output = ssh_conn.recv(2000)
-
-    if "authentication" in output:
-        ssh_conn.close()
-        ssh.close()
-        return("Connection closed due to incorrect login credentials")
-
     if enable == "":
         enable = passw
 
@@ -68,24 +74,30 @@ def cisco(user, passw, enable, hostname, commands=[]):
             ssh_conn.close()
             ssh.close()
             return("Connection closed due to incorrect enable credentials")
-
-    for cmd in output:
+    time.sleep(1)
+    ssh_conn.send("terminal length 0\n")
+    time.sleep(1)
+    for cmd in commands:
         ssh_conn.send(cmd + "\n")
-        output = ssh_conn.recv(20000)
+        time.sleep(1)
+        output = output + ssh_conn.recv(50000)
+        print output
+    ssh_conn.send("terminal length 24\n")
     ssh_conn.close()
     ssh.close()
+    print(output)
     return(output)
 
 
-def dell(user, passw, enable, hostname, commands=[]):
+def dell(user, passw, enable, hostname, commands):
     pass
 
 
-def hp(user, passw, enable, hostname, commands=[]):
+def hp(user, passw, enable, hostname, commands):
     pass
 
 
-def a10(user, passw, enable, hostname, commands=[]):
+def a10(user, passw, enable, hostname, commands):
     pass
 
 

@@ -6,8 +6,13 @@ import time
 def main():
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect('10.30.0.6', username='admin', password='SpassE32', look_for_keys=False, allow_agent=False)
-    ssh_conn = ssh.invoke_shell()
+    try:
+        ssh.connect('10.30.0.6', username='admin', password='barf', look_for_keys=False, allow_agent=False)
+        ssh_conn = ssh.invoke_shell()
+    except paramiko.ssh_exception.AuthenticationException:
+        print("Connection closed due to incorrect credentials")
+        return('0')
+
     time.sleep(1)
     output = ssh_conn.recv(2000)
     print(output)
@@ -25,9 +30,13 @@ def main():
     output = ssh_conn.recv(2000)
     print(output)
 
-    ssh_conn.send("show clock detail\n")
+    ssh_conn.send("terminal length 0\n")
+    time.sleep(1)
+    ssh_conn.send("show version\n")
     time.sleep(1)
     output = ssh_conn.recv(20000)
+    ssh_conn.send("terminal length 24\n")
+    time.sleep(1)
     ssh_conn.close()
     ssh.close()
     print(output)
