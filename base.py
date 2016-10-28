@@ -73,6 +73,7 @@ def cisco(user, passw, enable, hostname, commands):
     time.sleep(1)
     ssh_conn.send("terminal length 0\n")
     time.sleep(1)
+    output = ''
     for cmd in commands:
         ssh_conn.send(cmd + "\n")
         time.sleep(1)
@@ -115,6 +116,7 @@ def dell(user, passw, enable, hostname, commands):
     time.sleep(1)
     ssh_conn.send("terminal length 0\n")
     time.sleep(1)
+    output = ''
     for cmd in commands:
         ssh_conn.send(cmd + "\n")
         time.sleep(1)
@@ -124,7 +126,7 @@ def dell(user, passw, enable, hostname, commands):
     time.sleep(1)
     ssh_conn.close()
     ssh.close()
-    print(output)
+#    print(output)
     return(output)
 
 
