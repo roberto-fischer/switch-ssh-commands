@@ -27,8 +27,10 @@ def main():
     commands = items.dirty_commands.split(";")
     print(items.enable, items.username, items.password, items.hostname, items.dirty_commands)
 #    Choosing the appropriate function to use depending on the selected device
-    if items.hosttype == "cisco" or items.hosttype == "a10" or items.hosttype == "dell":
+    if items.hosttype == "cisco" or items.hosttype == "a10":
             result = cisco(items.username, items.password, items.enable, items.hostname, commands)
+    elif items.hosttype == "dell":
+            result = dell(items.username, items.password, items.enable, items.hostname, commands)
     elif items.hosttype == "hp":
             result = hp(items.username, items.password, items.enable, items.hostname, commands)
     else:
@@ -84,13 +86,52 @@ def cisco(user, passw, enable, hostname, commands):
     return(output)
 
 
+def dell(user, passw, enable, hostname, commands):
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    paramiko.util.log_to_file("/tmp/paramiko.log")
+
+    try:
+        ssh.connect(hostname, username=user, password=passw, look_for_keys=False, allow_agent=False)
+        ssh_trans = ssh.get_transport()
+        ssh_conn = ssh_trans.open_session()
+    except paramiko.ssh_exception.AuthenticationException:
+        print("Connection closed due to incorrect credentials")
+        return('0')
+
+    time.sleep(1)
+    output = ssh_conn.recv(2000)
+    if enable == "":
+        enable = passw
+
+    if output[-1] == ">":
+        ssh_conn.send("enable\n")
+        ssh_conn.send(enable + "\n")
+        output = ssh_conn.recv(2000)
+        if output[-1] == ">":
+            ssh_conn.close()
+            ssh.close()
+            return("Connection closed due to incorrect enable credentials")
+    time.sleep(1)
+    ssh_conn.send("terminal length 0\n")
+    time.sleep(1)
+    for cmd in commands:
+        ssh_conn.send(cmd + "\n")
+        time.sleep(1)
+        output = output + ssh_conn.recv(50000)
+        print output
+    ssh_conn.send("terminal length 24\n")
+    time.sleep(1)
+    ssh_conn.close()
+    ssh.close()
+    print(output)
+    return(output)
+
+
 def hp(user, passw, enable, hostname, commands):
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-    import pdb;
-    pdb.set_trace
-    
     try:
         ssh.connect(hostname, username=user, password=passw, look_for_keys=False, allow_agent=False)
         ssh_conn = ssh.invoke_shell()
