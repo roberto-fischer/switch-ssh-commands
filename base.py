@@ -92,7 +92,7 @@ def dell(user, passw, enable, hostname, commands):
     paramiko.util.log_to_file("/tmp/paramiko.log")
 
     try:
-        ssh.connect(hostname, username=user, password=passw, look_for_keys=False, allow_agent=False)
+        ssh.connect(hostname, username=user, password=passw, look_for_keys=True, allow_agent=False)
         ssh_trans = ssh.get_transport()
         ssh_conn = ssh_trans.open_session()
     except paramiko.ssh_exception.AuthenticationException:
