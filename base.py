@@ -26,25 +26,18 @@ def main():
     # Splitting the commands into an array
     commands = items.dirty_commands.split(";")
     print(items.enable, items.username, items.password, items.hostname, items.dirty_commands)
-    # Choosing the appropriate function to use depending on the selected device
-    # if hosttype == "cisco":
-    #         cisco(username, password, enable, hostname, commands)
-    # elif hosttype == "dell":
-    #         dell(username, password, enable, hostname, commands)
-    # elif hosttype == "hp":
-    #         hp(username, password, enable, hostname, commands)
-    # elif hosttype == "a10":
-    #         a10(username, password, enable, hostname, commands)
-    # else:
-    #     # If nothing was chosen
-    #     print("No proper device selected...")
-    #     sys.exit()
+#    Choosing the appropriate function to use depending on the selected device
+    if items.hosttype == "cisco" or items.hosttype == "a10" or items.hosttype == "dell":
+            result = cisco(items.username, items.password, items.enable, items.hostname, commands)
+    elif items.hosttype == "hp":
+            result = hp(items.username, items.password, items.enable, items.hostname, commands)
+    else:
+        # If nothing was chosen
+        print("No proper device selected...")
+        sys.exit()
 
-    result = cisco(items.username, items.password, items.enable, items.hostname, commands)
+#   result = cisco(items.username, items.password, items.enable, items.hostname, commands)
     target = open(log, 'w')
-#    import pdb;
-#    pdb.set_trace()
-    print target.mode
     target.write(result)
     target.close()
     sys.exit()
@@ -53,6 +46,7 @@ def main():
 def cisco(user, passw, enable, hostname, commands):
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    paramiko.util.log_to_file("/tmp/paramiko.log")
 
     try:
         ssh.connect(hostname, username=user, password=passw, look_for_keys=False, allow_agent=False)
@@ -83,22 +77,41 @@ def cisco(user, passw, enable, hostname, commands):
         output = output + ssh_conn.recv(50000)
         print output
     ssh_conn.send("terminal length 24\n")
+    time.sleep(1)
     ssh_conn.close()
     ssh.close()
     print(output)
     return(output)
 
 
-def dell(user, passw, enable, hostname, commands):
-    pass
-
-
 def hp(user, passw, enable, hostname, commands):
-    pass
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
+    try:
+        ssh.connect(hostname, username=user, password=passw, look_for_keys=False, allow_agent=False)
+        ssh_conn = ssh.invoke_shell()
+    except paramiko.ssh_exception.AuthenticationException:
+        print("Connection closed due to incorrect credentials")
+        return('0')
 
-def a10(user, passw, enable, hostname, commands):
-    pass
+    time.sleep(1)
+    ssh_conn.send(" screen-length disable\n")
+    time.sleep(1)
+    output = ''
+
+    for cmd in commands:
+        ssh_conn.send(" " + cmd + "\n")
+        time.sleep(1)
+        output = output + ssh_conn.recv(50000)
+        print output
+    time.sleep(1)
+    ssh_conn.send(" screen-length disable\n")
+    time.sleep(1)
+    ssh_conn.close()
+    ssh.close()
+    print(output)
+    return(output)
 
 
 if __name__ == '__main__':
