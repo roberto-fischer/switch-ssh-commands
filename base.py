@@ -93,7 +93,7 @@ def dell(user, passw, enable, hostname, commands):
 
     try:
         ssh.connect(hostname, username=user, password=passw, look_for_keys=True, allow_agent=False,
-                    pkey="./id_rsa")
+                    key_filename="./id_rsa")
         ssh_trans = ssh.get_transport()
         ssh_conn = ssh_trans.open_session()
     except paramiko.ssh_exception.AuthenticationException:
