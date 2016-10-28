@@ -88,6 +88,9 @@ def hp(user, passw, enable, hostname, commands):
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
+    import pdb;
+    pdb.set_trace
+    
     try:
         ssh.connect(hostname, username=user, password=passw, look_for_keys=False, allow_agent=False)
         ssh_conn = ssh.invoke_shell()
