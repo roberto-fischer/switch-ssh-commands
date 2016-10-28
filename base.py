@@ -94,8 +94,7 @@ def dell(user, passw, enable, hostname, commands):
     try:
         ssh.connect(hostname, username=user, password=passw, look_for_keys=True, allow_agent=False,
                     key_filename="./id_rsa")
-        ssh_trans = ssh.get_transport()
-        ssh_conn = ssh_trans.open_session()
+        ssh_conn = ssh.invoke_shell()
     except paramiko.ssh_exception.AuthenticationException:
         print("Connection closed due to incorrect credentials")
         return('0')
