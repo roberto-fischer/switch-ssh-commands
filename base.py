@@ -124,9 +124,15 @@ def dell(user, passw, enable, hostname, commands):
         print output
     ssh_conn.send("terminal length 24\n")
     time.sleep(1)
-    ssh_conn.close()
-    ssh.close()
-#    print(output)
+    ssh_conn.send("exit\n")
+    time.sleep(1)
+    ssh_conn.send("exit\n")
+    time.sleep(1)
+    try:
+        ssh_conn.close()
+        ssh.close()
+    except socket.error:
+        print "Connection already closed"
     return(output)
 
 
