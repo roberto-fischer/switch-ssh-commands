@@ -3,6 +3,8 @@ import paramiko
 import sys
 import argparse
 import time
+import os
+from socket import socket
 
 
 def main():
@@ -37,7 +39,8 @@ def main():
         # If nothing was chosen
         print("No proper device selected...")
         sys.exit()
-
+    if not os.path.exists('/tmp/sw-cmds'):
+        os.makedirs('/tmp/sw-cmds')
 #   result = cisco(items.username, items.password, items.enable, items.hostname, commands)
     target = open(log, 'w')
     target.write(result)
@@ -118,13 +121,17 @@ def dell(user, passw, enable, hostname, commands):
     time.sleep(1)
     output = ''
     for cmd in commands:
+        if cmd == "wr":
+            sleepy = 10
+        else:
+            sleepy = 1
         ssh_conn.send(cmd + "\n")
-        time.sleep(1)
+        time.sleep(sleepy)
         output = output + ssh_conn.recv(50000)
         print output
     ssh_conn.send("terminal length 24\n")
     time.sleep(1)
-    ssh_conn.send("exit\n")
+    ssh_conn.send("end\n")
     time.sleep(1)
     ssh_conn.send("exit\n")
     time.sleep(1)
